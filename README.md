@@ -1,1 +1,1 @@
-A python webapp tutorial.
+A python webapp.
