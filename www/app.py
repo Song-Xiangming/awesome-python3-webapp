@@ -6,7 +6,7 @@ __author__ = 'Song Xiangming'
 '''
 async web application.
 '''
-#levelÉèÖÃÈÕÖ¾µÄ¼¶±ğ
+#levelè®¾ç½®æ—¥å¿—çš„çº§åˆ«
 import logging; logging.basicConfig(level=logging.INFO)
 
 import asyncio, os, json, time
@@ -19,9 +19,9 @@ import orm
 from coroweb import add_routes, add_static
 
 '''
-Ò»¸ömiddleware¿ÉÒÔ¸Ä±äURLµÄÊäÈë¡¢Êä³ö£¬ÉõÖÁ¿ÉÒÔ¾ö¶¨²»¼ÌĞø´¦Àí¶øÖ±½Ó·µ»Ø¡£
-middlewareµÄÓÃ´¦¾ÍÔÚÓÚ°ÑÍ¨ÓÃµÄ¹¦ÄÜ´ÓÃ¿¸öURL´¦Àíº¯ÊıÖĞÄÃ³öÀ´£¬¼¯ÖĞ·Åµ½Ò»¸öµØ·½¡£
-ÀıÈç£¬Ò»¸ö¼ÇÂ¼URLÈÕÖ¾µÄlogger¿ÉÒÔ¼òµ¥¶¨ÒåÈçÏÂ£º
+ä¸€ä¸ªmiddlewareå¯ä»¥æ”¹å˜URLçš„è¾“å…¥ã€è¾“å‡ºï¼Œç”šè‡³å¯ä»¥å†³å®šä¸ç»§ç»­å¤„ç†è€Œç›´æ¥è¿”å›ã€‚
+middlewareçš„ç”¨å¤„å°±åœ¨äºæŠŠé€šç”¨çš„åŠŸèƒ½ä»æ¯ä¸ªURLå¤„ç†å‡½æ•°ä¸­æ‹¿å‡ºæ¥ï¼Œé›†ä¸­æ”¾åˆ°ä¸€ä¸ªåœ°æ–¹ã€‚
+ä¾‹å¦‚ï¼Œä¸€ä¸ªè®°å½•URLæ—¥å¿—çš„loggerå¯ä»¥ç®€å•å®šä¹‰å¦‚ä¸‹ï¼š
 '''
 async def logger_factory(app,handler):
     async def logger(request):
@@ -30,12 +30,12 @@ async def logger_factory(app,handler):
     return logger
 	
 '''
-¿É²Î¿¼»Ò_ÊÖµÄ»Ø´ğ£ºÄã¿ÉÒÔ²Î¿¼ÎÒµÄdata_factoryµÄÊµÏÖ¡£
-Èç¹ûmethod == 'GET'Ê±£¬²ÎÊı¾ÍÊÇ²éÑ¯×Ö·û´®£¬Ò²¾ÍÊÇrequest.query_string
-Èç¹ûmethod == 'POST'Ê±£¬ÓĞÁ½ÖÖ¿ÉÄÜ£¬AjaxµÄjsonºÍhtmlµÄform(±íµ¥)£¬·Ö±ğ¶ÔÓ¦request.json()ºÍrequest.post()¡£ 
-data_factoryµÄÖ÷Òª×÷ÓÃ¾ÍÊÇ°ÑÕâĞ©²ÎÊıÍ³Ò»°ó¶¨ÔÚrequest.__data__ÉÏ¡£
+å¯å‚è€ƒç°_æ‰‹çš„å›ç­”ï¼šä½ å¯ä»¥å‚è€ƒæˆ‘çš„data_factoryçš„å®ç°ã€‚
+å¦‚æœmethod == 'GET'æ—¶ï¼Œå‚æ•°å°±æ˜¯æŸ¥è¯¢å­—ç¬¦ä¸²ï¼Œä¹Ÿå°±æ˜¯request.query_string
+å¦‚æœmethod == 'POST'æ—¶ï¼Œæœ‰ä¸¤ç§å¯èƒ½ï¼ŒAjaxçš„jsonå’Œhtmlçš„form(è¡¨å•)ï¼Œåˆ†åˆ«å¯¹åº”request.json()å’Œrequest.post()ã€‚ 
+data_factoryçš„ä¸»è¦ä½œç”¨å°±æ˜¯æŠŠè¿™äº›å‚æ•°ç»Ÿä¸€ç»‘å®šåœ¨request.__data__ä¸Šã€‚
 '''
-#day5ÔİÊ±Î´Ê¹ÓÃ
+#day5æš‚æ—¶æœªä½¿ç”¨
 async def data_factory(app, handler):
     async def parse_data(request):
         if request.method == 'POST':
@@ -46,27 +46,27 @@ async def data_factory(app, handler):
                 request.__data__ = await request.post()
                 logging.info('request form: %s' % str(request.__data__))
 
-#responseÕâ¸ömiddleware°Ñ·µ»ØÖµ×ª»»Îªweb.Response¶ÔÏóÔÙ·µ»Ø£¬ÒÔ±£Ö¤Âú×ãaiohttpµÄÒªÇó£º
+#responseè¿™ä¸ªmiddlewareæŠŠè¿”å›å€¼è½¬æ¢ä¸ºweb.Responseå¯¹è±¡å†è¿”å›ï¼Œä»¥ä¿è¯æ»¡è¶³aiohttpçš„è¦æ±‚ï¼š
 async def response_factory(app, handler):
     async def response(request):
         logging.info('Response handler...')
         r = await handler(request)
-        #A StreamReader instance, input stream for reading request¡¯s BODY.¹Ù·½ÎÄµµÖĞµÄ±ê×¼·µ»ØÖµweb.Response()µÄÀàĞÍ
+        #A StreamReader instance, input stream for reading requestâ€™s BODY.å®˜æ–¹æ–‡æ¡£ä¸­çš„æ ‡å‡†è¿”å›å€¼web.Response()çš„ç±»å‹
         if isinstance(r, web.StreamResponse):
             return r
-        #ÈÎÒâµÄ¶ş½øÖÆÊı¾İ application/octet-stream£¬Òª¼ÓÉÏcontent_type
+        #ä»»æ„çš„äºŒè¿›åˆ¶æ•°æ® application/octet-streamï¼Œè¦åŠ ä¸Šcontent_type
         if isinstance(r, bytes):
             resp = web.Response(body=r)
             resp.content_type = 'application/octet-stream'
             return resp
         if isinstance(r, str):
-            #ÖØ¶¨ÏòÇëÇó£¬302ÒÑÕÒµ½
+            #é‡å®šå‘è¯·æ±‚ï¼Œ302å·²æ‰¾åˆ°
             if r.startswith('redirect:'):
                 return web.HTTPFound(r[9:])
             resp = web.Response(body=r.encode('utf-8'))
             resp.content_type = 'text/html;charset=utf-8'
             return resp
-        #Ã»¶®
+        #æ²¡æ‡‚,æ‡‚ä¸€ç‚¹å¦‚æœæœ‰template,
         if isinstance(r, dict):
             template = r.get('__template__')
             if template is None:
@@ -77,10 +77,10 @@ async def response_factory(app, handler):
                 resp = web.Response(body=app['__templating__'].get_template(template).render(**r).encode('utf-8'))
                 resp.content_type = 'text/html;charset=utf-8'
                 return resp
-        #Http Response Code×´Ì¬Âë·¶Î§100~600
+        #Http Response CodeçŠ¶æ€ç èŒƒå›´100~600
         if isinstance(r, int) and r >= 100 and r < 600:
             return web.Response(r)
-        #Ä¿²âÊÇ×´Ì¬Âë + description
+        #ç›®æµ‹æ˜¯çŠ¶æ€ç  + description
         if isinstance(r, tuple) and len(r) == 2:
             t, m = r
             if isinstance(t, int) and t >= 100 and t < 600:
@@ -94,17 +94,17 @@ async def response_factory(app, handler):
 def datetime_filter(t):
     delta = int(time.time() - t)
     if delta < 60:
-        return u'1·ÖÖÓÇ°'
+        return u'1åˆ†é’Ÿå‰'
     if delta < 3600:
-        return u'%s·ÖÖÓÇ°' % (delta // 60)
+        return u'%såˆ†é’Ÿå‰' % (delta // 60)
     if delta < 86400:
-        return u'%sĞ¡Ê±Ç°' % (delta // 3600)
+        return u'%så°æ—¶å‰' % (delta // 3600)
     if delta < 604800:
-        return u'%sÌìÇ°' % (delta // 86400)
+        return u'%så¤©å‰' % (delta // 86400)
     dt = datetime.fromtimestamp(t)
-    return u'%sÄê%sÔÂ%sÈÕ' % (dt.year, dt.month, dt.day)
+    return u'%så¹´%sæœˆ%sæ—¥' % (dt.year, dt.month, dt.day)
 
-# ³õÊ¼»¯jinja2Ä£°å
+# åˆå§‹åŒ–jinja2æ¨¡æ¿
 def init_jinja2(app, **kw):
     logging.info('init jinja2...')
     options = dict(
@@ -119,7 +119,7 @@ def init_jinja2(app, **kw):
     if path is None:
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
     logging.info('set jinja2 template path: %s' % path)
-    # ÔÚÕâÀï³õÊ¼»¯Ä£°æÅäÖÃ
+    # åœ¨è¿™é‡Œåˆå§‹åŒ–æ¨¡ç‰ˆé…ç½®
     env = Environment(loader=FileSystemLoader(path), **options)
     filters = kw.get('filters', None)
     if filters is not None:
@@ -127,16 +127,10 @@ def init_jinja2(app, **kw):
             env.filters[name] = f
     app['__templating__'] = env
 		
-'''
-def index(request):
-	# Èç¹ûÒªÔÚÍøÂçÉÏ´«Êä£¬»òÕß±£´æµ½´ÅÅÌÉÏ£¬¾ÍĞèÒª°Ñstr±äÎªÒÔ×Ö½ÚÎªµ¥Î»µÄbytes
-	# Èç¹û²»¼ÓÉÏcontent_type£¬½øÈëÍøÒ³»á×Ô¶¯ÏÂÔØÎÄ¼ş£¨Ò»ĞĞ×Ö·û£º<h1>Awesome</h1>£©
-	return web.Response(body=b'<h1>Awesome</h1>', content_type='text/html', charset='UTF-8')
-'''
 async def init(loop):
     await orm.create_pool(loop=loop, host='127.0.0.1', port=3306, user='root', password='123456', db='awesome')
-    # Day5 ÔÚapp.pyÖĞ¼ÓÈëmiddleware¡¢jinja2Ä£°åºÍ×Ô×¢²áµÄÖ§³Ö
-    # logger_factory, response_factoryÊÇÁ½¸öÀ¹½ØÆ÷£¬init_jinja2³õÊ¼»¯jinja2£¬Õâ3¸ö¶¼ÔÚÉÏ·½ÊµÏÖ
+    # Day5 åœ¨app.pyä¸­åŠ å…¥middlewareã€jinja2æ¨¡æ¿å’Œè‡ªæ³¨å†Œçš„æ”¯æŒ
+    # logger_factory, response_factoryæ˜¯ä¸¤ä¸ªæ‹¦æˆªå™¨ï¼Œinit_jinja2åˆå§‹åŒ–jinja2ï¼Œè¿™3ä¸ªéƒ½åœ¨ä¸Šæ–¹å®ç°
     app = web.Application(loop=loop, middlewares=[
         logger_factory, response_factory
     ])

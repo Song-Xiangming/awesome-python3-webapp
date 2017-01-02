@@ -48,7 +48,7 @@ def get_required_kw_args(fn):
     args = []
     params = inspect.signature(fn).parameters
     #inspect模块从函数fn中获取参数信息，name:变量名，param.kind:变量类型
-    for name, param = in params.items():
+    for name, param in params.items():
         if param.kind == inspect.Parameter.KEYWORD_ONLY and param.default == inspect.Parameter.empty:
             args.append(name)
     return tuple(args)
@@ -201,11 +201,11 @@ add_routes(app, 'handlers')
 def add_routes(app, module_name):
     #获取目录中最后一个.的索引值, 未找到时默认返回-1
     n = module_name.rfind('.')
-    if n == (-1)：
+    if n == (-1):
         mod = __import__(module_name, globals(), locals())
     else:
         #提取最后一个.前面的目录,并从中获取目标文件，具体用法参看笔记中博客
-        name = module_name[n=1:]
+        name = module_name[n+1:]
         mod = getattr(__import__(module_name[:n], globals(), locals(), [name]),name)
     #dir(mod)返回mod中的属性、方法列表
     for attr in dir(mod):
