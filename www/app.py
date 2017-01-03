@@ -66,21 +66,23 @@ async def response_factory(app, handler):
             resp = web.Response(body=r.encode('utf-8'))
             resp.content_type = 'text/html;charset=utf-8'
             return resp
-        #没懂,懂一点如果有template,
+        # 没懂,懂一点如果有template,
         if isinstance(r, dict):
             template = r.get('__template__')
             if template is None:
+                # json.dumps方法对简单数据类型encoding;  类的__dict__属性时，列出了类cls所包含的属性，包括一些类内置属性和类变量clsvar以及构造方法__init__
                 resp = web.Response(body=json.dumps(r, ensure_ascii=False, default=lambda o: o.__dict__).encode('utf-8'))
                 resp.content_type = 'application/json;charset=utf-8'
                 return resp
             else:
+                # 这里如何读取的模版？看完jinja2官方文档得知，详见笔记
                 resp = web.Response(body=app['__templating__'].get_template(template).render(**r).encode('utf-8'))
                 resp.content_type = 'text/html;charset=utf-8'
                 return resp
-        #Http Response Code状态码范围100~600
+        # Http Response Code状态码范围100~600
         if isinstance(r, int) and r >= 100 and r < 600:
             return web.Response(r)
-        #目测是状态码 + description
+        # 目测是状态码 + description
         if isinstance(r, tuple) and len(r) == 2:
             t, m = r
             if isinstance(t, int) and t >= 100 and t < 600:

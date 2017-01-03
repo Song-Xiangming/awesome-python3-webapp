@@ -170,6 +170,7 @@ class RequestHandler(object):
 # handle static files (images, JavaScripts, CSS files etc.
 # 见aiohttp官方文档中Static file handling，搜add_static
 def add_static(app):
+    # 获取当前脚本文件路径: os.path.dirname(os.path.abspath(__file__)) 
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static')
     app.router.add_static('/static/', path)
     logging.info('add static %s => %s' % ('/static/', path))
