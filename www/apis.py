@@ -5,6 +5,10 @@ __author__ = 'Song-Xiangming'
 '''
 JSON API definition.
 '''
+'''
+我们需要对Error进行处理，因此定义一个APIError，这种Error是指API调用时发生了逻辑错误（比如用户不存在），
+其他的Error视为Bug，返回的错误代码为internalerror。
+'''
 
 import json, logging, inspect, functools
 
