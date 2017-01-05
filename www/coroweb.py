@@ -6,7 +6,7 @@ import asyncio, os, inspect, logging, functools
 
 from urllib import parse
 from aiohttp import web
-#apis.py还未编写
+
 from apis import APIError
 
 def get(path):
@@ -114,10 +114,10 @@ class RequestHandler(object):
                 ct = request.content_type.lower()
                 if ct.startswith('application/json'):
                     #request.json()可能是返回请求中json
-                    params = request.json()
+                    params = await request.json()
                     if not isinstance(params, dict):
                         return web.HTTPBadRequest('JSON body must be object.')
-                        kw = params
+                    kw = params
                 # 见笔记：http-关于application/x-www-form-urlencoded等字符编码的解释说明
                 elif ct.startswith('application/x-www-form-urlencoded') or ct.startswith('multipart/form-data'):
                     params = await request.post()
