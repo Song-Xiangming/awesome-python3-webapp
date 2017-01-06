@@ -66,7 +66,9 @@ async def index(request):
     ]
     return{
         '__template__': 'blogs.html',
-        'blogs': blogs
+        'blogs': blogs,
+        # 这里要返回__user__才能显示头像
+        '__user__': request.__user__
     }
 
 # 获取User表的api    

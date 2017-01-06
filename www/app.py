@@ -18,6 +18,8 @@ from jinja2 import Environment, FileSystemLoader
 import orm
 from coroweb import add_routes, add_static
 
+from handlers import cookie2user, COOKIE_NAME
+
 '''
 一个middleware可以改变URL的输入、输出，甚至可以决定不继续处理而直接返回。
 middleware的用处就在于把通用的功能从每个URL处理函数中拿出来，集中放到一个地方。
@@ -150,8 +152,9 @@ async def init(loop):
     await orm.create_pool(loop=loop, host='127.0.0.1', port=3306, user='root', password='123456', db='awesome')
     # Day5 在app.py中加入middleware、jinja2模板和自注册的支持
     # logger_factory, response_factory是两个拦截器，init_jinja2初始化jinja2，这3个都在上方实现
+    # Day10 绑定了auth_factory拦截器，用于将登录用户绑定到request对象上
     app = web.Application(loop=loop, middlewares=[
-        logger_factory, response_factory
+        logger_factory, auth_factory, response_factory
     ])
     init_jinja2(app, filters=dict(datetime=datetime_filter))
     add_routes(app, 'handlers')
