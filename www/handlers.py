@@ -6,6 +6,8 @@ __author__ = 'Song-Xiangming'
 
 import re, time, json, logging, hashlib, base64, asyncio
 
+import markdown2
+
 from aiohttp import web
 
 from coroweb import get, post
@@ -14,9 +16,17 @@ from apis import APIError, APIValueError, APIResourceNotFoundError
 from models import User, Comment, Blog, next_id
 from config import configs
 
+''' ·············<自定义变量>············· '''
 COOKIE_NAME = 'awesession'
 _COOKIE_KEY = configs.session.secret
 
+# 匹配标准email的正则和匹配标准密码正则
+_RE_EMAIL = re.compile(r'^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$')
+_RE_SHA1 = re.compile(r'^[0-9a-f]{40}$')
+''' ·············</自定义变量>············· '''
+
+
+''' ·············<功能函数>············· '''
 # 计算加密cookie
 def user2cookie(user, max_age):
     '''
@@ -55,6 +65,32 @@ async def cookie2user(cookie_str):
         logging.exception(e)
         return None
 
+# 检验是否为管理员帐号，管理员可以发BLOG，普通用户只能评论
+def check_admin(request):
+    if request.__user__ is None or not request.__user__.admin:
+        raise APIPermissionError()
+
+# 获取page验证
+def get_page_index(page_str):
+    p = 1
+    try:
+        p = int(page_str)
+    except ValueError as e:
+        pass
+    if p < 1:
+        p = 1
+    return p
+    
+# text->html
+def text2html(text):
+    # filter去掉空行，map转义&,<,>符号，并加上p标签
+    lines = map(lambda s: '<p>%s</p>' % s.replace('&', '&amp;').replace('<', '&lt;').replace('>', '&gt;'), filter(lambda s: s.strip() != '', text.split('\n')))
+    return ''.join(lines)
+    
+''' ·············</功能函数>············· '''
+
+
+''' ·············<首页部分>············· '''
 # 默认首页
 @get('/')
 async def index(request):
@@ -67,23 +103,13 @@ async def index(request):
     return{
         '__template__': 'blogs.html',
         'blogs': blogs,
-        # 这里要返回__user__才能显示头像
+        # 这里要返回__user__才能显示头像，记得上一行加逗号
         '__user__': request.__user__
     }
+''' ·············</首页部分>············· ''' 
 
-# 获取User表的api    
-@get('/api/users')
-async def api_get_users():
-    users = await User.findAll(orderBy='created_at desc')
-    for u in users:
-        u.passwd = '******'
-    return dict(user=users)
 
-    
-# 匹配标准email的正则和匹配标准密码正则
-_RE_EMAIL = re.compile(r'^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$')
-_RE_SHA1 = re.compile(r'^[0-9a-f]{40}$')
-
+''' ·············<登录注册>············· '''
 # 注册页
 @get('/register')
 def register():
@@ -133,7 +159,7 @@ def signout(request):
     logging.info('user signed out.')
     return r
     
-# 注册
+# api: register  
 @post('/api/users')
 async def api_register_user(*, email, name, passwd):
     if not name or not name.strip():
@@ -159,3 +185,72 @@ async def api_register_user(*, email, name, passwd):
     r.content_type = 'application/json'
     r.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
     return r
+''' ·············</登录注册>············· '''
+
+''' ·············<创建Blog相关>············· '''
+# 获取对应id的blog，并绑定html版的博文和评论，markdown2见笔记
+@get('/blog/{id}')
+async def get_blog(id):
+    blog = await Blog.find(id)
+    comments = await Comment.findAll('blog_id=?', [id], orderBy='created_at desc')
+    for c in comments:
+        c.html_content = text2html(c.content)
+    blog.html_content = markdown2.markdown(blog.content)
+    return {
+        '__template__': 'blog.html',
+        'blog': blog,
+        'comments': comments
+    }
+
+# 创建博客管理页
+@get('/manage/blogs/create')
+def manage_create_blog(request):
+    return {
+        '__template__': 'manage_blog_edit.html',
+        'id': '',
+        'action': '/api/blogs',
+        # 这里要返回__user__才能显示头像，记得上一行加逗号
+        '__user__': request.__user__
+    }
+    
+# api: get blog    
+@get('/api/blogs/{id}')
+async def api_get_blog(*, id):
+    blog = await Blog.find(id)
+    return blog
+    
+# api: create blog        
+@post('/api/blogs')
+async def api_create_blog(request, *, name, summary, content):
+    # 只有管理员能发文
+    check_admin(request)
+    if not name or not name.strip():
+        raise APIValueError('name', 'name cannot be empty.')
+    if not summary or not summary.strip():
+        raise APIValueError('summary', 'summary cannot be empty.')
+    if not content or not content.strip():
+        raise APIValueError('content', 'content cannot be empty.')
+    blog = Blog(user_id=request.__user__.id, user_name=request.__user__.name, user_image=request.__user__.image, name=name.strip(), summary=summary.strip(), content=content.strip())
+    await blog.save()
+    return blog
+''' ·············</创建Blog相关>············· '''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
