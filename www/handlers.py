@@ -11,7 +11,7 @@ import markdown2
 from aiohttp import web
 
 from coroweb import get, post
-from apis import APIError, APIValueError, APIResourceNotFoundError
+from apis import Page, APIError, APIValueError, APIResourceNotFoundError
 
 from models import User, Comment, Blog, next_id
 from config import configs
@@ -202,7 +202,7 @@ async def get_blog(id):
         'comments': comments
     }
 
-# 创建博客管理页
+# 博客编辑管理页
 @get('/manage/blogs/create')
 def manage_create_blog(request):
     return {
@@ -212,6 +212,14 @@ def manage_create_blog(request):
         # 这里要返回__user__才能显示头像，记得上一行加逗号
         '__user__': request.__user__
     }
+
+# 博客管理页
+@get('/manage/blogs')
+def manage_blogs(*, page='1'):
+    return {
+        '__template__': 'manage_blogs.html',
+        'page_index': get_page_index(page)
+    }    
     
 # api: get blog    
 @get('/api/blogs/{id}')
@@ -233,6 +241,18 @@ async def api_create_blog(request, *, name, summary, content):
     blog = Blog(user_id=request.__user__.id, user_name=request.__user__.name, user_image=request.__user__.image, name=name.strip(), summary=summary.strip(), content=content.strip())
     await blog.save()
     return blog
+
+# api: get blogs by page
+@get('/api/blogs')
+async def api_blogs(*, page='1'):
+    page_index = get_page_index(page)
+    num = await Blog.findNumber('count(id)')
+    p = Page(num, page_index)
+    if num == 0:
+        return dict(page=p, blogs=())
+    blogs = await Blog.findAll(orderBy='created_at desc', limit=(p.offset, p.limit))
+    return dict(page=p, blogs=blogs)
+
 ''' ·············</创建Blog相关>············· '''
 
 
