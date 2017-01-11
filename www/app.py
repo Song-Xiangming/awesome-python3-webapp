@@ -32,6 +32,7 @@ async def logger_factory(app,handler):
     return logger
 
 # 利用middle在处理URL之前，把cookie解析出来，并将登录用户绑定到request对象上，这样，后续的URL处理函数就可以直接拿到登录用户：    
+# day15注释：把当前用户绑定到request上，并对URL/manage/进行拦截，检查当前用户是否是管理员身份：
 async def auth_factory(app, handler):
     async def auth(request):
         logging.info('check user: %s %s' % (request.method, request.path))
